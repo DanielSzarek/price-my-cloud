@@ -5,14 +5,14 @@ services:
     build: distributed_system_mock
     image: distributed-system-mock
     ports:
-      - "7000:7000"
+      - "8080:8080"
     env_file:
       - distributed_system_mock/.env
     depends_on:
       - db
     volumes:
       - ./distributed_system_mock/src:/src/src
-    command: ['python', './manage.py', 'runserver', '0.0.0.0:7000', '--settings=dsm.settings']
+    command: ['python', './manage.py', 'runserver', '0.0.0.0:8080', '--settings=dsm.settings']
 
   db:
     image: postgres:14
