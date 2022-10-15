@@ -27,6 +27,6 @@ COPY --from=builder /venv /venv
 COPY . /src
 WORKDIR /src/src
 
-EXPOSE 7000
+EXPOSE 8080
 
-CMD python ./manage.py runserver_plus 0.0.0.0:7000 --settings=dsm.settings
+CMD python ./manage.py runserver_plus 0.0.0.0:8080 --settings=dsm.settings
