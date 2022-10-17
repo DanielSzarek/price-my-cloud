@@ -8,7 +8,7 @@ TIMEDELTA_100_MS = datetime.timedelta(milliseconds=100)
 
 class Node(utils_models.BaseModelMixin):
     name = models.CharField(max_length=255)
-    slug = models.CharField(max_length=255)
+    slug = models.CharField(max_length=255)  # TODO change to slug field
 
     def __str__(self):
         return self.name
