@@ -1,12 +1,12 @@
 import datetime
 
 from django.db import models
-from utils import models as utils_models
+from django_extensions.db.models import TimeStampedModel
 
 TIMEDELTA_100_MS = datetime.timedelta(milliseconds=100)
 
 
-class Node(utils_models.BaseModelMixin):
+class Node(TimeStampedModel):
     name = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)  # TODO change to slug field
 
@@ -14,14 +14,14 @@ class Node(utils_models.BaseModelMixin):
         return self.name
 
 
-class ComponentType(utils_models.BaseModelMixin):
+class ComponentType(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):
         return self.name
 
 
-class Component(utils_models.BaseModelMixin):
+class Component(TimeStampedModel):
     node = models.ForeignKey(Node, on_delete=models.CASCADE)
     type = models.ForeignKey(ComponentType, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
@@ -31,7 +31,7 @@ class Component(utils_models.BaseModelMixin):
         return f"{self.name} ({self.type.name})"
 
 
-class Connection(utils_models.BaseModelMixin):
+class Connection(TimeStampedModel):
     from_component = models.ForeignKey(
         Component, related_name="from_components", on_delete=models.CASCADE
     )
