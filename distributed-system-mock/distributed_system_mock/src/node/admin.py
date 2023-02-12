@@ -6,7 +6,7 @@ class NodeAdmin(admin.ModelAdmin):
     list_display = (
         "name",
         "slug",
-        "created_at",
+        "created",
     )
     search_fields = (
         "name",
@@ -17,7 +17,7 @@ class NodeAdmin(admin.ModelAdmin):
 class ComponentTypeAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        "created_at",
+        "created",
     )
     search_fields = ("name",)
 
