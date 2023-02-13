@@ -8,7 +8,10 @@ TIMEDELTA_100_MS = datetime.timedelta(milliseconds=100)
 
 class Node(TimeStampedModel):
     name = models.CharField(max_length=255)
-    slug = models.CharField(max_length=255)  # TODO change to slug field
+    slug = models.SlugField(
+        max_length=255,
+        db_index=True,
+    )
 
     def __str__(self):
         return self.name

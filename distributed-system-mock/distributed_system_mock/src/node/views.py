@@ -10,9 +10,9 @@ from django.views.generic.edit import FormView
 from .forms import FileFieldForm
 
 
-class FileFieldFormView(FormView):
+class NewNodeFileFieldFormView(FormView):
     form_class = FileFieldForm
-    template_name = "upload.html"
+    template_name = "new_node.html"
     success_url = "home.html"
 
     def post(self, request, *args, **kwargs):
@@ -23,8 +23,7 @@ class FileFieldFormView(FormView):
             for f in files:
                 handle_uploaded_file(f)
             return self.form_valid(form)
-        else:
-            return self.form_invalid(form)
+        return self.form_invalid(form)
 
 
 class Home(View):
@@ -46,5 +45,8 @@ class NodeGraphView(View):
         return render(
             request,
             "node_graph.html",
-            {"svg": graph.get_svg_graph, "nodes": graph.graph_nodes},
+            {
+                "node": node,
+                "svg": graph.get_svg_graph,
+            },
         )

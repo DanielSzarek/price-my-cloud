@@ -1,9 +1,22 @@
-<head>
-    <meta charset="UTF-8">
-    <title>AMW - Planowanie</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-</head>
+{% extends 'base.html' %}
 
 {% block content %}
-
+    <div class="container" style="text-align: center">
+        <table class="table table-hover">
+            <thead class="thead">
+            <tr>
+                <th colspan="2">
+                    <b>Nodes</b>
+                </th>
+            </tr>
+            </thead>
+            {% for node in nodes %}
+                <tr>
+                    <td>
+                        <a href={% url 'nodes:graph' slug=node.slug %}>{{ node.name }}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
 {% endblock content %}

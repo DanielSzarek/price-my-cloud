@@ -3,7 +3,10 @@
 <div style="text-align: center; color: white; padding-bottom: 10px;">
     <nav class="navbar navbar-dark bg-primary">
         <a class="navbar-brand" href="/">
-            PriceMyCloud
+            <div style="padding-left: 10px">PriceMyCloud</div>
         </a>
+        <div style="padding-right: 10px">
+            <a type="button" class="btn btn-outline-light" href={% url 'nodes:new-node' %}>New node</a>
+        </div>
     </nav>
 </div>
