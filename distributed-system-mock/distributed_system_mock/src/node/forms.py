@@ -1,12 +1,8 @@
 from django import forms
 
 
-class UploadFileForm(forms.Form):
-    title = forms.CharField(max_length=50)
-    file = forms.FileField()
-
-
-class FileFieldForm(forms.Form):
+class NodeCreationForm(forms.Form):
+    node_name = forms.CharField(max_length=255)
     file_field = forms.FileField(
-        widget=forms.ClearableFileInput(attrs={"multiple": True})
+        widget=forms.ClearableFileInput(attrs={"multiple": True}), required=False
     )

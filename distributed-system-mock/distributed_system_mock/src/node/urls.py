@@ -6,6 +6,6 @@ app_name = "nodes"
 
 urlpatterns = [
     path("", node_views.Home.as_view(), name="home"),
-    path("new-node/", node_views.NewNodeFileFieldFormView.as_view(), name="new-node"),
+    path("new-node/", node_views.NodeCreationView.as_view(), name="new-node"),
     path("node-graph/<str:slug>/", node_views.NodeGraphView.as_view(), name="graph"),
 ]
