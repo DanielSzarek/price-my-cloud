@@ -20,7 +20,7 @@ class FlowLogData(TimeStampedModel):
     source_port = models.PositiveIntegerField()
     destination_port = models.PositiveIntegerField()
     protocol = models.PositiveIntegerField()
-    packet = models.PositiveIntegerField()
+    packets = models.PositiveIntegerField()
     bytes = models.PositiveIntegerField()
     start = models.PositiveIntegerField()
     end = models.PositiveIntegerField()

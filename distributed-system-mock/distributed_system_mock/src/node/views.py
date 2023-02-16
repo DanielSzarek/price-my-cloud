@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from django.utils.text import slugify
 from django.views import View
 
-from aws.utils import handle_uploaded_file
+from aws import utils as aws_utils
 from node import models as node_models
 from node import graph as node_graph
 
@@ -27,7 +27,8 @@ class NodeCreationView(FormView):
                 slug=slugify(form.cleaned_data["node_name"]),
             )
             for file in files:
-                handle_uploaded_file(node, file)
+                aws_utils.handle_uploaded_file(node, file)
+            aws_utils.convert_flow_logs_to_components(node)
             return self.form_valid(form)
         return self.form_invalid(form)
 

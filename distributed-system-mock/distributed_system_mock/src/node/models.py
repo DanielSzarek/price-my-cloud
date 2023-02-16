@@ -32,6 +32,12 @@ class Component(TimeStampedModel):
     name = models.CharField(max_length=255)
     duration_of_operating = models.DurationField(default=TIMEDELTA_100_MS)
 
+    class Meta:
+        unique_together = (
+            "node",
+            "name",
+        )
+
     def __str__(self):
         return f"{self.name} ({self.type.name})"
 

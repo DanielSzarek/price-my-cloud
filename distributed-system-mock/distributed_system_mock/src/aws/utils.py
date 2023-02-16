@@ -1,9 +1,10 @@
-from itertools import islice
+from itertools import islice, chain
 
 import aws.models
 import ipaddress
 from aws import models as aws_models
 from node import models as node_models
+from django.db.models import Sum, Count
 
 LOG_MODEL_MAP = {
     "source": "srcaddr",
@@ -78,7 +79,7 @@ def handle_uploaded_file(node: node_models.Node, file):
                     source_port=line_items[header["srcport"]],
                     destination_port=line_items[header["dstport"]],
                     protocol=line_items[header["protocol"]],
-                    packet=line_items[header["packets"]],
+                    packets=line_items[header["packets"]],
                     bytes=line_items[header["bytes"]],
                     start=line_items[header["start"]],
                     end=line_items[header["end"]],
@@ -95,3 +96,57 @@ def handle_uploaded_file(node: node_models.Node, file):
     # aws_models.FlowLogData.objects.bulk_create(batch, batch_size)
 
     return flow_log
+
+
+def convert_flow_logs_to_components(node: node_models.Node):
+    source_components = node.flowlog_set.values_list(
+        "flowlogdata__source", flat=True
+    ).distinct()
+    destination_components = node.flowlog_set.values_list(
+        "flowlogdata__destination", flat=True
+    ).distinct()
+    components = list(chain(source_components, destination_components))
+    component_type = (
+        node_models.ComponentType.objects.first()
+    )  # TODO should pick automatically type
+    components_map = {}
+    for ip in components:
+        component = node_models.Component.objects.create(
+            node=node,
+            type=component_type,
+            name=ip,
+        )
+        components_map[ip] = component
+
+    data = (
+        node.flowlog_set.values(
+            "flowlogdata__source",
+            # "flowlogdata__source_port",
+            "flowlogdata__destination",
+            # "flowlogdata__destination_port",
+            # "flowlogdata__protocol",
+        )
+        .annotate(
+            amount=Count("id"),
+            packets=Sum("flowlogdata__packets"),
+            bytes=Sum("flowlogdata__bytes"),
+        )
+        .values(
+            "flowlogdata__source",
+            # "flowlogdata__source_port",
+            "flowlogdata__destination",
+            # "flowlogdata__destination_port",
+            # "flowlogdata__protocol",
+            "amount",
+            "packets",
+            "bytes",
+        )
+    )
+
+    for connection in data:
+        node_models.Connection.objects.create(
+            from_component=components_map[connection["flowlogdata__source"]],
+            to_component=components_map[connection["flowlogdata__destination"]],
+            number_of_requests=connection["amount"],
+            description=f'{connection["packets"]}: {connection["bytes"]}',
+        )
