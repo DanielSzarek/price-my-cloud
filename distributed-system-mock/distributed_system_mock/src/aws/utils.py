@@ -1,4 +1,4 @@
-from itertools import islice, chain
+from itertools import chain
 
 import aws.models
 import ipaddress
@@ -105,7 +105,7 @@ def convert_flow_logs_to_components(node: node_models.Node):
     destination_components = node.flowlog_set.values_list(
         "flowlogdata__destination", flat=True
     ).distinct()
-    components = list(chain(source_components, destination_components))
+    components = set(chain(source_components, destination_components))
     component_type = (
         node_models.ComponentType.objects.first()
     )  # TODO should pick automatically type
@@ -143,10 +143,14 @@ def convert_flow_logs_to_components(node: node_models.Node):
         )
     )
 
+    connections = []
     for connection in data:
-        node_models.Connection.objects.create(
-            from_component=components_map[connection["flowlogdata__source"]],
-            to_component=components_map[connection["flowlogdata__destination"]],
-            number_of_requests=connection["amount"],
-            description=f'{connection["packets"]}: {connection["bytes"]}',
+        connections.append(
+            node_models.Connection(
+                from_component=components_map[connection["flowlogdata__source"]],
+                to_component=components_map[connection["flowlogdata__destination"]],
+                number_of_requests=connection["amount"],
+                description=f'{connection["packets"]}: {connection["bytes"]}',
+            )
         )
+    node_models.Connection.objects.bulk_create(connections)
