@@ -12,6 +12,18 @@ from django.views.generic.edit import FormView
 from .forms import NodeCreationForm
 
 
+class Home(View):
+    def get(self, request, *args, **kwargs):
+        nodes = node_models.Node.objects.all()
+        return render(
+            request,
+            "home.html",
+            {
+                "nodes": nodes,
+            },
+        )
+
+
 class NodeCreationView(FormView):
     form_class = NodeCreationForm
     template_name = "new_node.html"
@@ -33,14 +45,17 @@ class NodeCreationView(FormView):
         return self.form_invalid(form)
 
 
-class Home(View):
+class NodeDetailsView(View):
     def get(self, request, *args, **kwargs):
-        nodes = node_models.Node.objects.all()
+        node = node_models.Node.objects.get(id=kwargs.get("node_id"))
+        # components = node.component_set.exclude(id__in=kwargs.get("omit_component_ids"))
+        components = node.component_set.all()  # TODO Should be unique
         return render(
             request,
-            "home.html",
+            "node_details.html",
             {
-                "nodes": nodes,
+                "node": node,
+                "components": components,
             },
         )
 
