@@ -33,6 +33,8 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # 3rd party
     "django_extensions",
+    "bootstrap_modal_forms",
+    "widget_tweaks",
     # local
     "node",
     "aws",

@@ -9,7 +9,8 @@ from node import graph as node_graph
 from django.shortcuts import render
 
 from django.views.generic.edit import FormView
-from .forms import NodeCreationForm
+from node import forms as node_forms
+from bootstrap_modal_forms.generic import BSModalUpdateView
 
 
 class Home(View):
@@ -25,7 +26,7 @@ class Home(View):
 
 
 class NodeCreationView(FormView):
-    form_class = NodeCreationForm
+    form_class = node_forms.NodeCreationForm
     template_name = "new_node.html"
     success_url = reverse_lazy("nodes:home")
 
@@ -73,4 +74,16 @@ class NodeGraphView(View):
                 "node": node,
                 "svg": graph.get_svg_graph,
             },
+        )
+
+
+class ComponentFormUpdate(BSModalUpdateView):
+    model = node_models.Component
+    template_name = "forms/component_update_form.html"
+    form_class = node_forms.ComponentModelForm
+    success_message = "Component has been saved"
+
+    def get_success_url(self):
+        return reverse_lazy(
+            "nodes:node-details", kwargs={"node_id": str(self.kwargs["node_id"])}
         )

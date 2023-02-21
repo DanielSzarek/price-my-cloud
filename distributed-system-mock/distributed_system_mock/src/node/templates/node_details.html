@@ -25,7 +25,7 @@
                                 <div style="padding-bottom: 10px" class="row">
                             {% endif %}
                         <div class="col-md-4">
-                            <p class="bs-modal clickable">{{ component.name }}</p>
+                            <p class="bs-modal clickable" data-form-url="{% url 'nodes:component-update' pk=component.id node_id=node.id %}">{{ component.name }}</p>
                         </div>
                         {% if forloop.counter|divisibleby:3 or forloop.last %}
                             </div>
@@ -43,7 +43,7 @@
                                 <div style="padding-bottom: 10px" class="row">
                             {% endif %}
                         <div class="col-md-4">
-                            <p class="bs-modal clickable">{{ component.name }}</p>
+                            <p class="bs-modal clickable" data-form-url="{% url 'nodes:component-update' pk=component.id node_id=node.id %}">{{ component.name }}</p>
                         </div>
                         {% if forloop.counter|divisibleby:3 or forloop.last %}
                             </div>
@@ -54,4 +54,16 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $(".bs-modal").each(function () {
+                $(this).modalForm({
+                    formURL: $(this).data("form-url"),
+                });
+            });
+        });
+    </script>
 {% endblock %}
