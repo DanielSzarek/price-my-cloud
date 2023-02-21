@@ -48,14 +48,16 @@ class NodeCreationView(FormView):
 class NodeDetailsView(View):
     def get(self, request, *args, **kwargs):
         node = node_models.Node.objects.get(id=kwargs.get("node_id"))
-        # components = node.component_set.exclude(id__in=kwargs.get("omit_component_ids"))
-        components = node.component_set.all()  # TODO Should be unique
+        components_shown = node.component_set.filter(hidden=False).order_by("name")
+        components_hidden = node.component_set.filter(hidden=True).order_by("name")
+
         return render(
             request,
             "node_details.html",
             {
                 "node": node,
-                "components": components,
+                "components_shown": components_shown,
+                "components_hidden": components_hidden,
             },
         )
 

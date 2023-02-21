@@ -9,8 +9,8 @@
     <h1>
         {{ node.name }}
     </h1>
-    <div>
-        <a href={% url 'nodes:graph' slug=node.slug %}>Visualize</a>
+    <div style="text-align: center">
+        <a type="button" class="btn btn-primary btn-lg btn-block" href={% url 'nodes:graph' slug=node.slug %}>Visualize</a>
     </div>
     <br>
     <div class="container">
@@ -20,7 +20,7 @@
                 <div class="card card-scroll scrollbar-deep-purple bordered-deep-purple thin">
                     <div class="card-body">
                         <h4 id="section1"><strong>SHOWN</strong></h4>
-                        {% for component in components %}
+                        {% for component in components_shown %}
                             {% if forloop.counter|add:"-1"|divisibleby:3 %}
                                 <div style="padding-bottom: 10px" class="row">
                             {% endif %}
@@ -38,7 +38,7 @@
                 <div class="card card-scroll scrollbar-deep-purple bordered-deep-purple thin">
                     <div class="card-body">
                         <h4 id="section1"><strong>HIDDEN</strong></h4>
-                        {% for component in components %}
+                        {% for component in components_hidden %}
                             {% if forloop.counter|add:"-1"|divisibleby:3 %}
                                 <div style="padding-bottom: 10px" class="row">
                             {% endif %}
@@ -54,5 +54,4 @@
             </div>
         </div>
     </div>
-    <p><a href="{% url 'nodes:home' %}">Return to home</a></p>
 {% endblock %}

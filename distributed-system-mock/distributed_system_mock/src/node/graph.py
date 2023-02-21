@@ -6,15 +6,19 @@ from node import models as node_models
 class NodeGraph:
     def __init__(self, node: node_models.Node):
         self.node = node
-        self.graph_nodes = node.component_set.all()
+        self.graph_nodes = node.component_set.filter(hidden=False)
         self.graph_edges = node_models.Connection.objects.filter(
-            from_component__node=node
+            from_component__node=node,
+            from_component__hidden=False,
+            to_component__hidden=False,
         )
 
     def get_svg_graph(self):
         dot = Digraph("node-graph", format="svg", comment="Node graph")
         dot.attr("node", fontname="Courier New", fontsize="13", margin="0.4")
-        dot.attr("edge", fontname="Courier", fontsize="11", arrowhead="none")
+        dot.attr(
+            "edge", fontname="Courier", fontsize="11", arrowhead="vee", arrowsize="1"
+        )
         dot.attr("node", shape="box")
         dot.node_attr.update(color="lightblue2", style="filled")
 

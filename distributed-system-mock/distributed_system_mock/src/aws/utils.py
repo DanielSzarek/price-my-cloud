@@ -154,3 +154,9 @@ def convert_flow_logs_to_components(node: node_models.Node):
             )
         )
     node_models.Connection.objects.bulk_create(connections)
+
+    # Prefilter components to figure out which were created by user (shown)
+    # and which components are just from AWS (should be hidden)
+    node_models.Component.objects.filter(node=node).exclude(
+        from_components__number_of_requests__gte=2
+    ).update(hidden=True)

@@ -31,6 +31,7 @@ class Component(TimeStampedModel):
     type = models.ForeignKey(ComponentType, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     duration_of_operating = models.DurationField(default=TIMEDELTA_100_MS)
+    hidden = models.BooleanField(default=False)
 
     class Meta:
         unique_together = (
