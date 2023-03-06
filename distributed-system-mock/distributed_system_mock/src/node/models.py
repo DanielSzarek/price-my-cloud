@@ -3,6 +3,9 @@ import datetime
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
 
+from aws import enums
+from aws.enum_support import as_choices
+
 TIMEDELTA_100_MS = datetime.timedelta(milliseconds=100)
 
 
@@ -52,11 +55,13 @@ class Connection(TimeStampedModel):
     )
     number_of_requests = models.PositiveIntegerField()
     avg_time_of_request = models.DurationField(default=TIMEDELTA_100_MS)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, null=True)
+    packets = models.PositiveIntegerField()
+    bytes = models.PositiveBigIntegerField()
+    action = models.CharField(choices=as_choices(enums.FlowLogsAction), max_length=64)
 
     class Meta:
-        # Let's suppose that we have only 1 connection mechanism now
-        unique_together = ("from_component", "to_component")
+        unique_together = ("from_component", "to_component", "action")
 
     def __str__(self):
         return f"From {self.from_component} to {self.to_component}"

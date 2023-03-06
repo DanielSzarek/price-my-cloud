@@ -19,7 +19,7 @@
         </div>
 
         {% for field in form %}
-            <div class="form-group">
+            <div class="form-group" style="padding-top: 15px">
                 <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {% if "Hide" in field.label %}
                     {% render_field field class="form-check-input" placeholder=field.label %}

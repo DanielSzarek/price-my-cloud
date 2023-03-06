@@ -1,10 +1,12 @@
+from datetime import timedelta
 from itertools import chain
 
 import aws.models
 import ipaddress
 from aws import models as aws_models
 from node import models as node_models
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg, Value, F
+from django.db.models import DurationField
 
 LOG_MODEL_MAP = {
     "source": "srcaddr",
@@ -125,11 +127,16 @@ def convert_flow_logs_to_components(node: node_models.Node):
             "flowlogdata__destination",
             # "flowlogdata__destination_port",
             # "flowlogdata__protocol",
+            "flowlogdata__action",
         )
         .annotate(
             amount=Count("id"),
             packets=Sum("flowlogdata__packets"),
             bytes=Sum("flowlogdata__bytes"),
+            avg_request_time=Avg(
+                F("flowlogdata__end") - F("flowlogdata__start"),
+                output_field=DurationField(),
+            ),
         )
         .values(
             "flowlogdata__source",
@@ -137,9 +144,11 @@ def convert_flow_logs_to_components(node: node_models.Node):
             "flowlogdata__destination",
             # "flowlogdata__destination_port",
             # "flowlogdata__protocol",
+            "flowlogdata__action",
             "amount",
             "packets",
             "bytes",
+            "avg_request_time",
         )
     )
 
@@ -150,7 +159,10 @@ def convert_flow_logs_to_components(node: node_models.Node):
                 from_component=components_map[connection["flowlogdata__source"]],
                 to_component=components_map[connection["flowlogdata__destination"]],
                 number_of_requests=connection["amount"],
-                description=f'{connection["packets"]}: {connection["bytes"]}',
+                # avg_time_of_request=timedelta(connection["avg_request_time"]),
+                packets=connection["packets"],
+                bytes=connection["bytes"],
+                action=connection["flowlogdata__action"],
             )
         )
     node_models.Connection.objects.bulk_create(connections)
