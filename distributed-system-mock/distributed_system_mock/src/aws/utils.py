@@ -1,12 +1,14 @@
-from datetime import timedelta
+from datetime import datetime
 from itertools import chain
+from decimal import Decimal
+from operator import itemgetter
 
 import aws.models
 import ipaddress
 from aws import models as aws_models
 from node import models as node_models
-from django.db.models import Sum, Count, Avg, Value, F
-from django.db.models import DurationField
+from django.db.models import Sum, Count, Min, Max
+import boto3
 
 LOG_MODEL_MAP = {
     "source": "srcaddr",
@@ -133,10 +135,14 @@ def convert_flow_logs_to_components(node: node_models.Node):
             amount=Count("id"),
             packets=Sum("flowlogdata__packets"),
             bytes=Sum("flowlogdata__bytes"),
-            avg_request_time=Avg(
-                F("flowlogdata__end") - F("flowlogdata__start"),
-                output_field=DurationField(),
-            ),
+            # avg_request_time=Avg(
+            #     F("flowlogdata__end") - F("flowlogdata__start"),
+            #     output_field=DurationField(),
+            # ),
+            start=Min("flowlogdata__start"),
+            end=Max(
+                "flowlogdata__start"
+            ),  # yes we want to check start, as end can be finished 60 seconds later
         )
         .values(
             "flowlogdata__source",
@@ -148,7 +154,9 @@ def convert_flow_logs_to_components(node: node_models.Node):
             "amount",
             "packets",
             "bytes",
-            "avg_request_time",
+            # "avg_request_time",
+            "start",
+            "end",
         )
     )
 
@@ -163,12 +171,83 @@ def convert_flow_logs_to_components(node: node_models.Node):
                 packets=connection["packets"],
                 bytes=connection["bytes"],
                 action=connection["flowlogdata__action"],
+                start=datetime.fromtimestamp(connection["start"]),
+                end=datetime.fromtimestamp(connection["end"]),
             )
         )
     node_models.Connection.objects.bulk_create(connections)
 
     # Prefilter components to figure out which were created by user (shown)
     # and which components are just from AWS (should be hidden)
-    node_models.Component.objects.filter(node=node).exclude(
-        from_components__number_of_requests__gte=2
-    ).update(hidden=True)
+    # node_models.Component.objects.filter(node=node).exclude(
+    #     from_components__number_of_requests__gte=2
+    # ).update(hidden=True)
+
+    client_cw = boto3.client("cloudwatch")
+    aws_map_ip_with_instance_id = map_ec2_with_components()
+    for component in node.component_set.all():
+        if component.name in aws_map_ip_with_instance_id:
+            component.hidden = False
+            component.save(update_fields=["hidden"])
+            if not (
+                start_connection := node_models.Connection.objects.filter(
+                    from_component__name=component.name
+                )
+                .order_by("start")
+                .first()
+            ):
+                continue
+            if not (
+                end_connection := node_models.Connection.objects.filter(
+                    from_component__name=component.name
+                )
+                .order_by("end")
+                .last()
+            ):
+                continue
+            cpu_utilization = get_cpu_utilization(
+                client_cw,
+                aws_map_ip_with_instance_id[component.name],
+                start_connection.start,
+                end_connection.end,
+            )
+            component.cpu_utilization = cpu_utilization
+            component.save(update_fields=["cpu_utilization"])
+
+
+def get_cpu_utilization(client_cw, instance_id, start_time, end_time):
+    cpu_utilization = client_cw.get_metric_statistics(
+        Namespace="AWS/EC2",
+        MetricName="CPUUtilization",
+        Dimensions=[{"Name": "InstanceId", "Value": instance_id}],
+        StartTime=start_time,
+        EndTime=end_time,
+        Period=86400,
+        Statistics=["Average"],
+    )
+
+    if datapoints := cpu_utilization["Datapoints"]:
+        highest_cpu_datapoint = sorted(datapoints, key=itemgetter("Average"))[-1]
+        utilization = highest_cpu_datapoint["Average"]
+        load = round(utilization, 3)
+        return Decimal(str(load))
+    return Decimal("0.000")
+
+
+def map_ec2_with_components():
+    ec2 = boto3.resource("ec2")
+    aws_map_ip_with_instance_id = {}
+    for instance in ec2.instances.all():
+        ip = None
+        try:
+            ip = instance.public_ip_address
+        except AttributeError:
+            pass
+        try:
+            ip = instance.private_ip_address
+        except AttributeError:
+            pass
+
+        if ip:
+            aws_map_ip_with_instance_id[ip] = instance.id
+    return aws_map_ip_with_instance_id

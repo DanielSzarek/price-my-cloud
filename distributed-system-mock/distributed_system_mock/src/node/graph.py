@@ -1,14 +1,12 @@
-from django.db.models import Count, Sum, Avg, F, DurationField
+from django.db.models import Sum
 from graphviz import Digraph
 
 from node import models as node_models
 from aws.enums import FlowLogsAction
 from node.utils import convert_bytes
 
-TOTAL_REQUESTS_WARNING = 10
-TOTAL_REQUESTS_CRITICAL = 20
-TOTAL_PACKETS_WARNING = 1000
-TOTAL_PACKETS_CRITICAL = 1500
+CPU_UTILIZATION_WARNING = 2
+CPU_UTILIZATION_CRITICAL = 4
 
 
 class NodeGraph:
@@ -28,16 +26,13 @@ class NodeGraph:
             action=FlowLogsAction.REJECT.value,
         )
 
-    def get_component_color(self, total_requests, total_packets):
-        if (total_requests >= TOTAL_REQUESTS_CRITICAL) or (
-            total_packets >= TOTAL_PACKETS_CRITICAL
-        ):
+    def get_component_color(self, cpu_utilization):
+        if not cpu_utilization or cpu_utilization < CPU_UTILIZATION_WARNING:
+            return "lightgreen"
+        if cpu_utilization >= CPU_UTILIZATION_CRITICAL:
             return "red2"
-        elif (total_requests >= TOTAL_REQUESTS_WARNING) or (
-            total_packets >= TOTAL_PACKETS_WARNING
-        ):
+        elif cpu_utilization >= CPU_UTILIZATION_WARNING:
             return "orange"
-        return "lightgreen"
 
     def get_svg_graph(self):
         dot = Digraph("node-graph", format="svg", comment="Node graph")
@@ -54,14 +49,15 @@ class NodeGraph:
                 packets=Sum("packets"),
                 bytes=Sum("bytes"),
             )
+            cpu_utilization = component.cpu_utilization
             total_requests = aggregation["total"] or 0
             total_packets = aggregation["packets"] or 0
             total_bytes = convert_bytes(aggregation["bytes"] or 0)
-            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}>"
+            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%>"
             dot.node(
                 str(component.id),
                 label=label,
-                color=self.get_component_color(total_requests, total_packets),
+                color=self.get_component_color(cpu_utilization),
                 shape=None,
                 href=self._prepare_component_edit_url(component),
                 tooltip=str(component.id),

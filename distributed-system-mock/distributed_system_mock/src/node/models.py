@@ -1,7 +1,9 @@
 import datetime
 
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django_extensions.db.models import TimeStampedModel
+from decimal import Decimal
 
 from aws import enums
 from aws.enum_support import as_choices
@@ -29,12 +31,22 @@ class ComponentType(TimeStampedModel):
         return self.name
 
 
+PERCENTAGE_VALIDATOR = [MinValueValidator(0), MaxValueValidator(100)]
+
+
 class Component(TimeStampedModel):
     node = models.ForeignKey(Node, on_delete=models.CASCADE)
     type = models.ForeignKey(ComponentType, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     duration_of_operating = models.DurationField(default=TIMEDELTA_100_MS)
-    hidden = models.BooleanField(default=False)
+    hidden = models.BooleanField(default=True)
+    cpu_utilization = models.DecimalField(
+        null=True,
+        max_digits=6,
+        decimal_places=3,
+        default=Decimal(0),
+        validators=PERCENTAGE_VALIDATOR,
+    )
 
     class Meta:
         unique_together = (
@@ -59,6 +71,8 @@ class Connection(TimeStampedModel):
     packets = models.PositiveIntegerField()
     bytes = models.PositiveBigIntegerField()
     action = models.CharField(choices=as_choices(enums.FlowLogsAction), max_length=64)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
 
     class Meta:
         unique_together = ("from_component", "to_component", "action")
