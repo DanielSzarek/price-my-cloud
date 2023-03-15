@@ -110,9 +110,7 @@ def convert_flow_logs_to_components(node: node_models.Node):
         "flowlogdata__destination", flat=True
     ).distinct()
     components = set(chain(source_components, destination_components))
-    component_type = (
-        node_models.ComponentType.objects.first()
-    )  # TODO should pick automatically type
+    component_type = node_models.ComponentType.objects.get(name="EC2")
     components_map = {}
     for ip in components:
         component = node_models.Component.objects.create(

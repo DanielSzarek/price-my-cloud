@@ -2,22 +2,22 @@ version: "3"
 
 services:
   app:
-    build: distributed_system_mock
-    image: distributed-system-mock
+    build: price_my_cloud
+    image: price-my-cloud
     ports:
       - "8080:8080"
     env_file:
-      - distributed_system_mock/.env
+      - price_my_cloud/.env
     depends_on:
       - db
     volumes:
-      - ./distributed_system_mock/src:/src/src
+      - ./price_my_cloud/src:/src/src
     command: ['python', './manage.py', 'runserver', '0.0.0.0:8080', '--settings=dsm.settings']
 
   db:
     image: postgres:14
     env_file:
-      - distributed_system_mock/.env
+      - price_my_cloud/.env
     volumes:
       - db_volume:/var/lib/postgresql/data
     ports:
