@@ -47,6 +47,7 @@ class Component(TimeStampedModel):
         default=Decimal(0),
         validators=PERCENTAGE_VALIDATOR,
     )
+    instance_type = models.CharField(max_length=255, null=True)
 
     class Meta:
         unique_together = (
@@ -68,7 +69,7 @@ class Connection(TimeStampedModel):
     number_of_requests = models.PositiveIntegerField()
     avg_time_of_request = models.DurationField(default=TIMEDELTA_100_MS)
     description = models.CharField(max_length=255, null=True)
-    packets = models.PositiveIntegerField()
+    packets = models.PositiveBigIntegerField()
     bytes = models.PositiveBigIntegerField()
     action = models.CharField(choices=as_choices(enums.FlowLogsAction), max_length=64)
     start = models.DateTimeField()

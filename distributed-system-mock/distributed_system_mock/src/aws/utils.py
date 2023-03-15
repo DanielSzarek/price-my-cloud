@@ -188,7 +188,10 @@ def convert_flow_logs_to_components(node: node_models.Node):
     for component in node.component_set.all():
         if component.name in aws_map_ip_with_instance_id:
             component.hidden = False
-            component.save(update_fields=["hidden"])
+            component.instance_type = aws_map_ip_with_instance_id[component.name][
+                "instance_type"
+            ]
+            component.save(update_fields=["hidden", "instance_type"])
             if not (
                 start_connection := node_models.Connection.objects.filter(
                     from_component__name=component.name
@@ -207,7 +210,7 @@ def convert_flow_logs_to_components(node: node_models.Node):
                 continue
             cpu_utilization = get_cpu_utilization(
                 client_cw,
-                aws_map_ip_with_instance_id[component.name],
+                aws_map_ip_with_instance_id[component.name]["instance_id"],
                 start_connection.start,
                 end_connection.end,
             )
@@ -249,5 +252,8 @@ def map_ec2_with_components():
             pass
 
         if ip:
-            aws_map_ip_with_instance_id[ip] = instance.id
+            aws_map_ip_with_instance_id[ip] = {
+                "instance_id": instance.id,
+                "instance_type": instance.instance_type,
+            }
     return aws_map_ip_with_instance_id

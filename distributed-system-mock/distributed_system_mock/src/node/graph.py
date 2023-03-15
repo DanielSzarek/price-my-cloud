@@ -50,10 +50,11 @@ class NodeGraph:
                 bytes=Sum("bytes"),
             )
             cpu_utilization = component.cpu_utilization
+            instance_type = component.instance_type or "Unknown type"
             total_requests = aggregation["total"] or 0
             total_packets = aggregation["packets"] or 0
             total_bytes = convert_bytes(aggregation["bytes"] or 0)
-            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%>"
+            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%<br/><br/>[{instance_type}]>"
             dot.node(
                 str(component.id),
                 label=label,
