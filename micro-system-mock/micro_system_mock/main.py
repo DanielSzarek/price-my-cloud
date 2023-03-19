@@ -1,18 +1,29 @@
-import random
+import asyncio
+from time import time
 
 from fastapi import FastAPI
-from time import time
+
+from . import utils
 from .config import settings
+from db import get_logs, create_log, LogCreate
 
 app = FastAPI()
 
 
 @app.get("/")
 def read_root():
-    rand = random.randint(settings.range_from, settings.range_to)
     start = time()
-    for i in range(rand):
-        _ = i * i
+    if settings.SHOULD_PERFORM_CPU_OPERATIONS:
+        utils.cpu_operations()
+
+    if settings.SHOULD_CALL_DB:
+        log = LogCreate(message="Log message")
+        create_log(log)
+        get_logs()
+
+    if settings.SHOULD_CALL_APIS:
+        asyncio.run(utils.call_apis())
+
     duration = time() - start
 
     return {
