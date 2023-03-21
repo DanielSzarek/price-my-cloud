@@ -12,6 +12,7 @@ fastapi = "^0.94.1"
 uvicorn = {extras = ["standard"], version = "^0.21.0"}
 sqlalchemy = "^2.0.7"
 aiohttp = "^3.8.4"
+psycopg2 = "^2.9.5"
 
 
 [build-system]
