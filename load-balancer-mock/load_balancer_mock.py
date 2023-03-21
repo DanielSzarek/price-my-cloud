@@ -4,7 +4,7 @@ from os import getenv
 import aiohttp
 import requests
 
-endpoints_to_call = getenv("ENDPOINTS_TO_CALL", "").split(";")
+endpoints_to_call = getenv("API_ENDPOINTS", "").split(";")
 sleep_time = int(getenv("SLEEP_TIME", 1))
 
 

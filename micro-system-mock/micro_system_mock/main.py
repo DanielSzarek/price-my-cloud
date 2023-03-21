@@ -17,11 +17,13 @@ def read_root():
         utils.cpu_operations()
 
     if settings.SHOULD_CALL_DB:
+        print("Calling DB")
         log = LogCreate(log_data="Log message")
         create_log(log)
         print(f"DB log Count: {len(get_logs())}")
 
     if settings.SHOULD_CALL_APIS:
+        print("Calling API")
         utils.call_apis()
 
     duration = time() - start
