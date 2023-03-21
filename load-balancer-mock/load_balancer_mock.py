@@ -2,6 +2,7 @@ import asyncio
 import time
 from os import getenv
 import aiohttp
+import requests
 
 endpoints_to_call = getenv("ENDPOINTS_TO_CALL", "").split(";")
 sleep_time = int(getenv("SLEEP_TIME", 1))
@@ -10,7 +11,7 @@ sleep_time = int(getenv("SLEEP_TIME", 1))
 async def make_request(endpoint, session):
     try:
         async with session.get(endpoint) as response:
-            print(f"Response from {endpoint}: {response.status}")
+            print(f"Response from {endpoint}: {response.status_code}")
     except aiohttp.ClientError as e:
         print(f"Error connecting to {endpoint}: {e}")
 
@@ -24,5 +25,9 @@ async def call_apis():
 
 if __name__ == "__main__":
     while True:
-        await call_apis()
+        # call_apis()
+        for endpoint in endpoints_to_call:
+            response = requests.get(endpoint)
+            print(f"Response from {endpoint}: {response.status_code}")
+            print(response.json())
         time.sleep(sleep_time)
