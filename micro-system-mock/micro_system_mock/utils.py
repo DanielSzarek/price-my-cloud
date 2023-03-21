@@ -3,6 +3,7 @@ import asyncio
 from .config import settings
 import random
 import aiohttp
+import requests
 
 range_from = settings.CPU_OPERATIONS.RANGE_FROM
 range_to = settings.CPU_OPERATIONS.RANGE_TO
@@ -23,7 +24,13 @@ async def make_request(session, endpoint):
         print(f"Error connecting to {endpoint}: {e}")
 
 
-async def call_apis():
+async def call_apis_async():
     async with aiohttp.ClientSession() as session:
         tasks = [make_request(session, endpoint) for endpoint in api_endpoints]
         await asyncio.gather(*tasks)
+
+
+def call_apis():
+    for endpoint in api_endpoints:
+        response = requests.get(endpoint)
+        print(f"{response.status_code} - {response.json()}")

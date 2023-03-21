@@ -14,14 +14,14 @@ Base = declarative_base()
 class Log(Base):
     __tablename__ = "logs"
     id = Column(Integer, primary_key=True)
-    message = Column(String)
+    log_data = Column(String)
 
     def to_pydantic(self):
-        return {"id": self.id, "log": self.log}
+        return {"id": self.id, "log": self.log_data}
 
 
 class LogCreate(BaseModel):
-    message: str
+    log_data: str
 
 
 def get_logs():
@@ -33,7 +33,7 @@ def get_logs():
 
 def create_log(log: LogCreate):
     session = Session()
-    user_obj = Log(name=log.message)
-    session.add(user_obj)
+    log_obj = Log(log_data=log.log_data)
+    session.add(log_obj)
     session.commit()
     session.close()

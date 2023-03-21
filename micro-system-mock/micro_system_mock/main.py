@@ -17,12 +17,12 @@ def read_root():
         utils.cpu_operations()
 
     if settings.SHOULD_CALL_DB:
-        log = LogCreate(message="Log message")
+        log = LogCreate(log_data="Log message")
         create_log(log)
-        get_logs()
+        print(f"DB log Count: {len(get_logs())}")
 
     if settings.SHOULD_CALL_APIS:
-        asyncio.run(utils.call_apis())
+        utils.call_apis()
 
     duration = time() - start
 
