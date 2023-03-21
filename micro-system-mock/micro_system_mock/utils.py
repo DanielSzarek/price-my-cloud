@@ -31,6 +31,6 @@ async def call_apis_async():
 
 
 def call_apis():
-    for endpoint in api_endpoints:
+    for endpoint in api_endpoints.split(";"):
         response = requests.get(endpoint)
         print(f"{response.status_code} - {response.json()}")

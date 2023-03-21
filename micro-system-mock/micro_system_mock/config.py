@@ -10,14 +10,12 @@ class Settings(BaseSettings):
         RANGE_FROM=getenv("RANGE_FROM", 500_000),
         RANGE_TO=getenv("RANGE_TO", 10_000_000),
     )
-
     SHOULD_CALL_DB = bool(getenv("SHOULD_CALL_DB", False))
     DB_CONNECTION_STRING = getenv(
         "DB_CONNECTION_STRING", "postgresql://postgres:postgres@localhost/postgres"
     )
-
     SHOULD_CALL_APIS = bool(getenv("SHOULD_CALL_APIS", False))
-    API_ENDPOINTS = getenv("API_ENDPOINTS", "").split(";")
+    API_ENDPOINTS = getenv("API_ENDPOINTS", "")
 
 
 settings = Settings()
