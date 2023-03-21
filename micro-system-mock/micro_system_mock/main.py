@@ -19,6 +19,8 @@ def read_root():
     if settings.SHOULD_PERFORM_CPU_OPERATIONS:
         utils.cpu_operations()
 
+    logger.error(settings.SHOULD_CALL_APIS)
+    logger.error(settings.SHOULD_CALL_DB)
     if settings.SHOULD_CALL_APIS:
         logger.error("Calling API")
         utils.call_apis()
