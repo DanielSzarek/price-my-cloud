@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 from . import utils
 from .config import settings
-from db import get_logs, create_log, LogCreate
+from .db import get_logs, create_log, LogCreate
 
 app = FastAPI()
 
