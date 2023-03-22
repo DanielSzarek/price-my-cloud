@@ -30,7 +30,11 @@ async def call_apis_async():
         await asyncio.gather(*tasks)
 
 
-def call_apis():
-    for endpoint in api_endpoints.split(";"):
-        response = requests.get(endpoint)
-        print(f"{response.status_code} - {response.json()}")
+def call_apis(counter):
+    # By using counter we can set traffic once to endpoint A, once to endpoint B
+    endpoints = api_endpoints.split(";")
+    if counter % 2 == 0:
+        response = requests.get(endpoints[0])
+    else:
+        response = requests.get(endpoints[-1])
+    print(f"{response.status_code} - {response.json()}")

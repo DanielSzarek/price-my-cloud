@@ -224,12 +224,12 @@ def get_cpu_utilization(client_cw, instance_id, start_time, end_time):
         StartTime=start_time,
         EndTime=end_time,
         Period=86400,
-        Statistics=["Average"],
+        Statistics=["Maximum"],
     )
 
     if datapoints := cpu_utilization["Datapoints"]:
-        highest_cpu_datapoint = sorted(datapoints, key=itemgetter("Average"))[-1]
-        utilization = highest_cpu_datapoint["Average"]
+        highest_cpu_datapoint = sorted(datapoints, key=itemgetter("Maximum"))[-1]
+        utilization = highest_cpu_datapoint["Maximum"]
         load = round(utilization, 3)
         return Decimal(str(load))
     return Decimal("0.000")

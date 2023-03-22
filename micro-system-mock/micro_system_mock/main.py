@@ -10,6 +10,7 @@ from .db import get_logs, create_log, LogCreate
 
 app = FastAPI()
 logger = logging.getLogger(__name__)
+counter = 0
 
 
 @app.get("/")
@@ -23,7 +24,10 @@ def read_root():
     logger.error(settings.SHOULD_CALL_DB)
     if settings.SHOULD_CALL_APIS:
         logger.error("Calling API")
-        utils.call_apis()
+        global counter
+        utils.call_apis(counter)
+        logger.error(f"Counter: {counter}")
+        counter += 1
 
     if settings.SHOULD_CALL_DB:
         logger.error("Calling DB")
