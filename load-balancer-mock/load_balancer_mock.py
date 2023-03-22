@@ -25,7 +25,7 @@ async def call_apis_async():
 
 if __name__ == "__main__":
     start = time.time()
-    for _ in range(10):
+    for _ in range(30):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(call_apis_async())
     # time.sleep(sleep_time)
