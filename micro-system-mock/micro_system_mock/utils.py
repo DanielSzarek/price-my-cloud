@@ -1,9 +1,12 @@
 import asyncio
+import logging
 
 from .config import settings
 import random
 import aiohttp
 import requests
+
+logger = logging.getLogger(__name__)
 
 range_from = settings.CPU_OPERATIONS.RANGE_FROM
 range_to = settings.CPU_OPERATIONS.RANGE_TO
@@ -38,11 +41,15 @@ async def call_api_async(api):
 
 
 async def call_apis_async(counter):
+    logger.error(f"Counter: {counter}")
     tasks = []
     endpoints = api_endpoints.split(";")
+    logger.error(f"Endpoints: {endpoints}")
     if counter % 2 == 0:
+        logger.error("Task 1")
         tasks.append(asyncio.ensure_future(call_api_async(endpoints[0])))
     else:
+        logger.error("Task 2")
         tasks.append(asyncio.ensure_future(call_api_async(endpoints[-1])))
     await asyncio.gather(*tasks)
 
