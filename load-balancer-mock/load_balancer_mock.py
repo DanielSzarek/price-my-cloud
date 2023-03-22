@@ -8,9 +8,9 @@ endpoints_to_call = getenv("API_ENDPOINTS", "").split(";")
 sleep_time = int(getenv("SLEEP_TIME", 1))
 
 
-async def call_api_async(api):
+async def call_api_async(api, counter):
     async with aiohttp.ClientSession() as session:
-        async with session.get(api) as response:
+        async with session.get(api, data={"counter": counter}) as response:
             data = await response.json()
             print(data)
 
@@ -18,8 +18,8 @@ async def call_api_async(api):
 async def call_apis_async():
     tasks = []
     for endpoint in endpoints_to_call:
-        for _ in range(10):
-            tasks.append(asyncio.ensure_future(call_api_async(endpoint)))
+        for i in range(10):
+            tasks.append(asyncio.ensure_future(call_api_async(endpoint, i)))
     await asyncio.gather(*tasks)
 
 

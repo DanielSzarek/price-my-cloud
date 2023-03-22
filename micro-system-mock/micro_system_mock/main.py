@@ -10,14 +10,10 @@ from .db import get_logs, create_log, LogCreate
 
 app = FastAPI()
 logger = logging.getLogger(__name__)
-counter = -1
 
 
 @app.get("/")
-def read_root():
-    global counter
-    counter += 1
-
+def read_root(counter: int = 0):
     start = time()
     logger.error("Start")
     if settings.SHOULD_PERFORM_CPU_OPERATIONS:
