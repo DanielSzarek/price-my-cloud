@@ -25,6 +25,7 @@ async def call_apis_async():
 if __name__ == "__main__":
     start = time.time()
     for i in range(500):
-        call_apis_async()
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(call_apis_async())
         time.sleep(sleep_time)
     print(f"Processing time: {time.time() - start}")
