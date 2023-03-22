@@ -24,10 +24,10 @@ def read_root():
     logger.error(settings.SHOULD_CALL_DB)
     if settings.SHOULD_CALL_APIS:
         logger.error("Calling API")
+        global counter
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(utils.call_apis_async())
-        global counter
+        loop.run_until_complete(utils.call_apis_async(counter))
         logger.error(f"Counter: {counter}")
         counter += 1
 

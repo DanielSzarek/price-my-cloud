@@ -18,14 +18,14 @@ async def call_api_async(api):
 async def call_apis_async():
     tasks = []
     for endpoint in endpoints_to_call:
-        tasks.append(asyncio.ensure_future(call_api_async(endpoint)))
+        for i in range(500):
+            tasks.append(asyncio.ensure_future(call_api_async(endpoint)))
     await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
     start = time.time()
-    for i in range(500):
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(call_apis_async())
-        time.sleep(sleep_time)
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(call_apis_async())
+    time.sleep(sleep_time)
     print(f"Processing time: {time.time() - start}")
