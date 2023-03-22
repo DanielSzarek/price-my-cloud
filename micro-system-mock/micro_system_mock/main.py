@@ -10,11 +10,14 @@ from .db import get_logs, create_log, LogCreate
 
 app = FastAPI()
 logger = logging.getLogger(__name__)
-counter = 0
+counter = -1
 
 
 @app.get("/")
 def read_root():
+    global counter
+    counter += 1
+
     start = time()
     logger.error("Start")
     if settings.SHOULD_PERFORM_CPU_OPERATIONS:
@@ -27,7 +30,6 @@ def read_root():
         asyncio.set_event_loop(loop)
         loop.run_until_complete(utils.call_apis_async(counter))
         # logger.error(f"Counter: {counter}")
-        counter += 1
 
     if settings.SHOULD_CALL_DB:
         logger.error("Calling DB")
