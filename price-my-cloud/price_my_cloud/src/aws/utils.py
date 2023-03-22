@@ -123,10 +123,7 @@ def convert_flow_logs_to_components(node: node_models.Node):
     data = (
         node.flowlog_set.values(
             "flowlogdata__source",
-            # "flowlogdata__source_port",
             "flowlogdata__destination",
-            # "flowlogdata__destination_port",
-            # "flowlogdata__protocol",
             "flowlogdata__action",
         )
         .annotate(
@@ -144,15 +141,11 @@ def convert_flow_logs_to_components(node: node_models.Node):
         )
         .values(
             "flowlogdata__source",
-            # "flowlogdata__source_port",
             "flowlogdata__destination",
-            # "flowlogdata__destination_port",
-            # "flowlogdata__protocol",
             "flowlogdata__action",
             "amount",
             "packets",
             "bytes",
-            # "avg_request_time",
             "start",
             "end",
         )

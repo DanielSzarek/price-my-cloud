@@ -5,8 +5,8 @@ from node import models as node_models
 from aws.enums import FlowLogsAction
 from node.utils import convert_bytes
 
-CPU_UTILIZATION_WARNING = 50
-CPU_UTILIZATION_CRITICAL = 80
+CPU_UTILIZATION_WARNING = 40
+CPU_UTILIZATION_CRITICAL = 70
 
 
 class NodeGraph:
