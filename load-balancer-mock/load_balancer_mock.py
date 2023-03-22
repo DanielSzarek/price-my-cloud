@@ -10,7 +10,7 @@ sleep_time = int(getenv("SLEEP_TIME", 1))
 
 async def call_api_async(api, counter):
     async with aiohttp.ClientSession() as session:
-        async with session.get(api, data={"counter": counter}) as response:
+        async with session.get(api, params={"counter": counter}) as response:
             data = await response.json()
             print(data)
 
