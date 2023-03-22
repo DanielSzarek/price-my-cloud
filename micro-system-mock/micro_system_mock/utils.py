@@ -45,11 +45,14 @@ async def call_apis_async(counter):
     tasks = []
     endpoints = api_endpoints.split(";")
     logger.error(f"Endpoints: {endpoints}")
-    if counter % 2 == 0:
+    if counter % 3 == 0:
         logger.error("Task 1")
         tasks.append(asyncio.ensure_future(call_api_async(endpoints[0])))
-    else:
+    elif counter % 3 == 1:
         logger.error("Task 2")
+        tasks.append(asyncio.ensure_future(call_api_async(endpoints[1])))
+    elif counter % 3 == 2:
+        logger.error("Task 3")
         tasks.append(asyncio.ensure_future(call_api_async(endpoints[-1])))
     await asyncio.gather(*tasks)
 
