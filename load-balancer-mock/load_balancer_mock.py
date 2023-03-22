@@ -8,26 +8,23 @@ endpoints_to_call = getenv("API_ENDPOINTS", "").split(";")
 sleep_time = int(getenv("SLEEP_TIME", 1))
 
 
-async def make_request(endpoint, session):
-    try:
-        async with session.get(endpoint) as response:
-            print(f"Response from {endpoint}: {response.status_code}")
-    except aiohttp.ClientError as e:
-        print(f"Error connecting to {endpoint}: {e}")
-
-
-async def call_apis():
+async def call_api_async(api):
     async with aiohttp.ClientSession() as session:
-        tasks = [make_request(endpoint, session) for endpoint in endpoints_to_call]
-        print(f"Tasks: {tasks}")
-        await asyncio.gather(*tasks)
+        async with session.get(api) as response:
+            data = await response.json()
+            print(data)
+
+
+async def call_apis_async():
+    tasks = []
+    for endpoint in endpoints_to_call:
+        tasks.append(asyncio.ensure_future(call_api_async(endpoint)))
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
-    while True:
-        # call_apis()
-        for endpoint in endpoints_to_call:
-            response = requests.get(endpoint)
-            print(f"Response from {endpoint}: {response.status_code}")
-            print(response.json())
+    start = time.time()
+    for i in range(500):
+        call_apis_async()
         time.sleep(sleep_time)
+    print(f"Processing time: {time.time() - start}")

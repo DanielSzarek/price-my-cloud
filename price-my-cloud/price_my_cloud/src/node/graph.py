@@ -54,7 +54,7 @@ class NodeGraph:
             total_requests = aggregation["total"] or 0
             total_packets = aggregation["packets"] or 0
             total_bytes = convert_bytes(aggregation["bytes"] or 0)
-            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%<br/><br/>[{instance_type}]>"
+            label = f"<<B>{component.name}</B><br/>--- {component.type} ---<br/><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%<br/><br/>[{instance_type}]>"
             dot.node(
                 str(component.id),
                 label=label,

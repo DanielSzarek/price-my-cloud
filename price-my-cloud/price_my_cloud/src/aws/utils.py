@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from itertools import chain
 from decimal import Decimal
 from operator import itemgetter
@@ -192,7 +192,8 @@ def convert_flow_logs_to_components(node: node_models.Node):
             component.save(update_fields=["hidden", "instance_type"])
             if not (
                 start_connection := node_models.Connection.objects.filter(
-                    from_component__name=component.name
+                    from_component__name=component.name,
+                    from_component__node=node,
                 )
                 .order_by("start")
                 .first()
@@ -200,7 +201,8 @@ def convert_flow_logs_to_components(node: node_models.Node):
                 continue
             if not (
                 end_connection := node_models.Connection.objects.filter(
-                    from_component__name=component.name
+                    from_component__name=component.name,
+                    from_component__node=node,
                 )
                 .order_by("end")
                 .last()
@@ -224,12 +226,12 @@ def get_cpu_utilization(client_cw, instance_id, start_time, end_time):
         StartTime=start_time,
         EndTime=end_time,
         Period=86400,
-        Statistics=["Maximum"],
+        Statistics=["Average"],
     )
 
     if datapoints := cpu_utilization["Datapoints"]:
-        highest_cpu_datapoint = sorted(datapoints, key=itemgetter("Maximum"))[-1]
-        utilization = highest_cpu_datapoint["Maximum"]
+        highest_cpu_datapoint = sorted(datapoints, key=itemgetter("Average"))[-1]
+        utilization = highest_cpu_datapoint["Average"]
         load = round(utilization, 3)
         return Decimal(str(load))
     return Decimal("0.000")
