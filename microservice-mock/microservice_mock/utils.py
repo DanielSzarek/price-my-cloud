@@ -19,20 +19,6 @@ def cpu_operations():
         _ = i * i
 
 
-# async def make_request(session, endpoint):
-#     try:
-#         async with session.get(endpoint) as response:
-#             print(f"Response from {endpoint}: {response.status}")
-#     except aiohttp.ClientError as e:
-#         print(f"Error connecting to {endpoint}: {e}")
-#
-#
-# async def call_apis_async():
-#     async with aiohttp.ClientSession() as session:
-#         tasks = [make_request(session, endpoint) for endpoint in api_endpoints]
-#         await asyncio.gather(*tasks)
-
-
 async def call_api_async(api):
     async with aiohttp.ClientSession() as session:
         async with session.get(api) as response:

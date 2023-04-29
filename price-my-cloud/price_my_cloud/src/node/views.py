@@ -73,11 +73,14 @@ class NodeGraphView(View):
         )
         instance_types_amounts = Counter(instance_types)
         cost_per_hour = 0
-        for instance_type, amount in instance_types_amounts.items():
-            cost = node_models.InstanceCost.objects.get(
-                instance_type=instance_type
-            ).cost_per_hour
-            cost_per_hour += cost * amount
+        try:
+            for instance_type, amount in instance_types_amounts.items():
+                cost = node_models.InstanceCost.objects.get(
+                    instance_type=instance_type
+                ).cost_per_hour
+                cost_per_hour += cost * amount
+        except:
+            cost_per_hour = 0
         cost_per_day = cost_per_hour * 24
         cost_per_week = cost_per_day * 7
         cost_per_month = cost_per_day * 30
