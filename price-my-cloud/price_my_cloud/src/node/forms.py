@@ -17,7 +17,6 @@ class ComponentModelForm(BSModalModelForm):
         label="Select type of component",
         queryset=node_models.ComponentType.objects.all().order_by("name"),
     )
-    # duration_of_operating = forms.DurationField(label="Duration of component operating")
     hidden = forms.BooleanField(label="Hide component?", required=False)
 
     class Meta:
@@ -26,5 +25,4 @@ class ComponentModelForm(BSModalModelForm):
             "name",
             "type",
             "hidden",
-            "duration_of_operating",
         )

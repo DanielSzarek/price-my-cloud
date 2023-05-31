@@ -30,5 +30,4 @@ if __name__ == "__main__":
     for _ in range(NUMBER_OF_SERIES):
         loop = asyncio.get_event_loop()
         loop.run_until_complete(call_apis_async())
-    # time.sleep(sleep_time)
     print(f"Processing time: {time.time() - start}")
