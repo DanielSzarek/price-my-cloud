@@ -123,10 +123,7 @@ def convert_flow_logs_to_components(node: node_models.Node):
     data = (
         node.flowlog_set.values(
             "flowlogdata__source",
-            # "flowlogdata__source_port",
             "flowlogdata__destination",
-            # "flowlogdata__destination_port",
-            # "flowlogdata__protocol",
             "flowlogdata__action",
         )
         .annotate(
@@ -144,15 +141,11 @@ def convert_flow_logs_to_components(node: node_models.Node):
         )
         .values(
             "flowlogdata__source",
-            # "flowlogdata__source_port",
             "flowlogdata__destination",
-            # "flowlogdata__destination_port",
-            # "flowlogdata__protocol",
             "flowlogdata__action",
             "amount",
             "packets",
             "bytes",
-            # "avg_request_time",
             "start",
             "end",
         )
@@ -192,7 +185,8 @@ def convert_flow_logs_to_components(node: node_models.Node):
             component.save(update_fields=["hidden", "instance_type"])
             if not (
                 start_connection := node_models.Connection.objects.filter(
-                    from_component__name=component.name
+                    from_component__name=component.name,
+                    from_component__node=node,
                 )
                 .order_by("start")
                 .first()
@@ -200,7 +194,8 @@ def convert_flow_logs_to_components(node: node_models.Node):
                 continue
             if not (
                 end_connection := node_models.Connection.objects.filter(
-                    from_component__name=component.name
+                    from_component__name=component.name,
+                    from_component__node=node,
                 )
                 .order_by("end")
                 .last()

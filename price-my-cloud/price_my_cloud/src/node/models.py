@@ -19,6 +19,7 @@ class Node(TimeStampedModel):
         max_length=255,
         unique=True,
     )
+    time_of_processing = models.DurationField(null=True)
 
     def __str__(self):
         return self.name
@@ -80,3 +81,13 @@ class Connection(TimeStampedModel):
 
     def __str__(self):
         return f"From {self.from_component} to {self.to_component}"
+
+
+class InstanceCost(TimeStampedModel):
+    instance_type = models.CharField(max_length=255)
+    cost_per_hour = models.DecimalField(
+        max_digits=7, decimal_places=4, default=Decimal(0)
+    )
+
+    def __str__(self):
+        return f"{self.instance_type}: {self.cost_per_hour}$"

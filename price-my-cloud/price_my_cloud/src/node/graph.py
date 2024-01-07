@@ -5,8 +5,11 @@ from node import models as node_models
 from aws.enums import FlowLogsAction
 from node.utils import convert_bytes
 
-CPU_UTILIZATION_WARNING = 2
-CPU_UTILIZATION_CRITICAL = 4
+CPU_UTILIZATION_WARNING = 40
+CPU_UTILIZATION_CRITICAL = 70
+
+NUMBER_OF_REQUESTS_PER_SECOND_WARNING = 1
+NUMBER_OF_REQUESTS_PER_SECOND_CRITICAL = 1.5
 
 
 class NodeGraph:
@@ -26,13 +29,24 @@ class NodeGraph:
             action=FlowLogsAction.REJECT.value,
         )
 
-    def get_component_color(self, cpu_utilization):
+    @staticmethod
+    def get_component_color(cpu_utilization):
         if not cpu_utilization or cpu_utilization < CPU_UTILIZATION_WARNING:
             return "lightgreen"
         if cpu_utilization >= CPU_UTILIZATION_CRITICAL:
             return "red2"
         elif cpu_utilization >= CPU_UTILIZATION_WARNING:
             return "orange"
+
+    def get_connection_thickness(self, number_of_requests):
+        avg_connections_per_second = (
+            number_of_requests / self.node.time_of_processing.seconds or 60
+        )
+        if avg_connections_per_second > NUMBER_OF_REQUESTS_PER_SECOND_CRITICAL:
+            return "3.0"
+        elif avg_connections_per_second > NUMBER_OF_REQUESTS_PER_SECOND_WARNING:
+            return "1.5"
+        return "0.75"
 
     def get_svg_graph(self):
         dot = Digraph("node-graph", format="svg", comment="Node graph")
@@ -51,10 +65,31 @@ class NodeGraph:
             )
             cpu_utilization = component.cpu_utilization
             instance_type = component.instance_type or "Unknown type"
+            duration = self.node.time_of_processing.seconds
             total_requests = aggregation["total"] or 0
+            total_requests_per_second = (
+                round(aggregation["total"] / duration, 2) if aggregation["total"] else 0
+            )
             total_packets = aggregation["packets"] or 0
+            total_packets_per_second = (
+                round(aggregation["packets"] / duration, 2)
+                if aggregation["total"]
+                else 0
+            )
             total_bytes = convert_bytes(aggregation["bytes"] or 0)
-            label = f"<<B>{component.name}</B><br/>Total received: {total_requests}<br/>Packets: {total_packets}<br/>Bytes: {total_bytes}<br/>CPU utilization: {cpu_utilization}%<br/><br/>[{instance_type}]>"
+            total_bytes_per_second = (
+                convert_bytes(round(aggregation["bytes"] / duration, 2))
+                if aggregation["total"]
+                else 0
+            )
+
+            label = (
+                f"<<B>{component.name}</B><br/>--- {component.type} ---<br/><br/>"
+                f"Total received: {total_requests} ({total_requests_per_second}/s)<br/>"
+                f"Packets: {total_packets} ({total_packets_per_second}/s)<br/>"
+                f"Bytes: {total_bytes} ({total_bytes_per_second}/s)<br/>"
+                f"CPU utilization: {cpu_utilization}%<br/><br/>[{instance_type}]>"
+            )
             dot.node(
                 str(component.id),
                 label=label,
@@ -70,6 +105,7 @@ class NodeGraph:
                 str(connection.from_component.id),
                 str(connection.to_component.id),
                 label=label,
+                penwidth=self.get_connection_thickness(connection.number_of_requests),
             )
         for connection in self.graph_edges_rejected:
             label = f"x{connection.number_of_requests} ({connection.packets} packets [{convert_bytes(connection.bytes)}])"
