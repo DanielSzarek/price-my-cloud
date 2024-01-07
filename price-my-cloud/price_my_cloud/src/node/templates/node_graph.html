@@ -1,4 +1,9 @@
 {% block content %}
+    <h1>Time of processing: {{ node.time_of_processing }}</h1>
+    <h3>Estimated cost per hour: {{ cost_per_hour }}$</h3>
+    <h3>Estimated cost per day: {{ cost_per_day }}$</h3>
+    <h3>Estimated cost per week: {{ cost_per_week }}$</h3>
+    <h3>Estimated cost per month: {{ cost_per_month }}$</h3>
     <div class="container" style="text-align: center">
         <div>{{ svg|safe }}</div>
     </div>

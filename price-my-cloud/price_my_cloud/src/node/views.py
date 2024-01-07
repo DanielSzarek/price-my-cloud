@@ -11,6 +11,7 @@ from django.shortcuts import render
 from django.views.generic.edit import FormView
 from node import forms as node_forms
 from bootstrap_modal_forms.generic import BSModalUpdateView
+from collections import Counter
 
 
 class Home(View):
@@ -38,6 +39,7 @@ class NodeCreationView(FormView):
             node = node_models.Node.objects.create(
                 name=form.cleaned_data["node_name"],
                 slug=slugify(form.cleaned_data["node_name"]),
+                time_of_processing=form.cleaned_data["time_of_processing"],
             )
             for file in files:
                 aws_utils.handle_uploaded_file(node, file)
@@ -66,6 +68,23 @@ class NodeDetailsView(View):
 class NodeGraphView(View):
     def get(self, request, *args, **kwargs):
         node = node_models.Node.objects.get(slug=kwargs.get("slug"))
+        instance_types = node.component_set.filter(hidden=False).values_list(
+            "instance_type", flat=True
+        )
+        instance_types_amounts = Counter(instance_types)
+        cost_per_hour = 0
+        try:
+            for instance_type, amount in instance_types_amounts.items():
+                cost = node_models.InstanceCost.objects.get(
+                    instance_type=instance_type
+                ).cost_per_hour
+                cost_per_hour += cost * amount
+        except:
+            cost_per_hour = 0
+        cost_per_day = cost_per_hour * 24
+        cost_per_week = cost_per_day * 7
+        cost_per_month = cost_per_day * 30
+
         graph = node_graph.NodeGraph(node)
         return render(
             request,
@@ -73,6 +92,10 @@ class NodeGraphView(View):
             {
                 "node": node,
                 "svg": graph.get_svg_graph,
+                "cost_per_hour": cost_per_hour,
+                "cost_per_day": cost_per_day,
+                "cost_per_week": cost_per_week,
+                "cost_per_month": cost_per_month,
             },
         )
 

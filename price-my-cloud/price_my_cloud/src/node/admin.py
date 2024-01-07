@@ -61,7 +61,16 @@ class ConnectionAdmin(admin.ModelAdmin):
         return object.from_component.node
 
 
+class InstanceCostAdmin(admin.ModelAdmin):
+    list_display = (
+        "instance_type",
+        "cost_per_hour",
+    )
+    search_fields = ("instance_type",)
+
+
 admin.site.register(node_models.Node, NodeAdmin)
 admin.site.register(node_models.ComponentType, ComponentTypeAdmin)
 admin.site.register(node_models.Component, ComponentAdmin)
 admin.site.register(node_models.Connection, ConnectionAdmin)
+admin.site.register(node_models.InstanceCost, InstanceCostAdmin)
